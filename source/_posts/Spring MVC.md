@@ -61,3 +61,46 @@ Spring的 DispatcherServlet 也允许处理器返回一个Servlet API规范中�
 你可以定制 DispatcherServlet 的配置，具体的做法，是在 web.xml 文件中，Servlet的声明元素上添加一些Servlet的初始化参数（通过 init-param 元素）。
 
 ![](Spring MVC/DispatcherServlet_5.png)
+
+# 3、控制器(Controller)的实现
+
+控制器作为应用程序逻辑的处理入口，它会负责去调用你已经实现的一些服务。通常，一个控制器会接收并解析用户的请求，然后把它转换成一个模型交给视图，由视图渲染出页面最终呈现给用户。Spring对控制器的定义非常宽松，这意味着你在实现控制器时非常自由。
+
+``` java
+@Controller
+public class HelloWorldController {
+    @RequestMapping("/helloWorld")
+    public String helloWorld(Model model) {
+        model.addAttribute("message", "Hello World!");
+        return "helloWorld";
+    }
+}
+```
+
+@Controller 和 @RequestMapping 及其他的一些注解，共同构成了Spring MVC框架的基本实现。@Controller 注解和 @RequestMapping 注解支持多样的方法名和方法签名。在上面这个例子中，方法接受一个 Model 类型的参数并返回一个字符串 String 类型的视图名。但事实上，方法所支持的参数和返回值有非常多的选择。
+
+## 3.1、使用@Controller注解定义一个控制器
+
+@Controller 注解表明了一个类是作为控制器的角色而存在的。Spring不要求你去继承任何控制器基类，也不要求你去实现Servlet的那套API。当然，如果你需要的话也可以去使用任何与Servlet相关的特性和设施。
+
+@Controller 注解可以认为是被标注类的原型（stereotype），表明了这个类所承担的角色。分派器（ DispatcherServlet ）会扫描所有注解了 @Controller 的类，检测其中通过 @RequestMapping 注解配置的方法。
+
+当然，你也可以不使用 @Controller 注解而显式地去定义被注解的bean，这点通过标准的Spring bean的定义方式，在dispather的上下文属性下配置即可做到。但是 @Controller 原型是可以被框架自动检测的，Spring支持classpath路径下组件类的自动检测，以及对已定义bean的自动注册。
+
+你需要在配置中加入组件扫描的配置代码来开启框架对注解控制器的自动检测。请使用下面XML代码所示的spring-context schema：
+
+``` xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:component-scan base-package="org.springframework.samples.petclinic.web"/>
+    <!-- ... -->
+</beans>
+```
